@@ -1,0 +1,744 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CRM MAVEC — Ficha de Cliente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root{
+    --ink:#1E2E22;
+    --paper:#F2F4EC;
+    --paper-raised:#FFFFFF;
+    --green-deep:#20402F;
+    --green-mid:#3A6350;
+    --gold:#C08A2E;
+    --clay:#A85A38;
+    --line:#D9DCCB;
+    --line-soft:#E7E9DD;
+    --danger:#A83A3A;
+    --shadow: 0 1px 2px rgba(32,64,47,0.06), 0 4px 14px rgba(32,64,47,0.07);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', system-ui, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom:80px;
+  }
+  .wrap{max-width:720px;margin:0 auto;padding:0 16px;}
+
+  /* ---------- Header ---------- */
+  header{
+    background:var(--green-deep);
+    color:#EFEFE4;
+    padding:22px 16px 20px;
+    border-bottom:4px solid var(--gold);
+  }
+  header .eyebrow{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:#B9CDBE;
+    margin:0 0 4px;
+  }
+  header h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:28px;
+    margin:0;
+    line-height:1.1;
+  }
+  header .sub{
+    margin:6px 0 0;
+    font-size:13.5px;
+    color:#C7D6CB;
+  }
+
+  .comercial-bar{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:16px;
+  }
+  .comercial-bar label{font-size:12px;color:#B9CDBE;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;}
+  .comercial-bar select{
+    flex:1;
+    background:rgba(255,255,255,0.08);
+    border:1px solid rgba(255,255,255,0.25);
+    color:#F2F4EC;
+    border-radius:8px;
+    padding:9px 10px;
+    font-size:14px;
+    font-family:inherit;
+  }
+  .comercial-bar select option{color:#1E2E22;}
+
+  /* ---------- Tabs ---------- */
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin:18px 0 14px;
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:11px 8px;
+    border-radius:10px;
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    font-weight:600;
+    font-size:14px;
+    color:var(--green-mid);
+    cursor:pointer;
+    user-select:none;
+  }
+  .tab.active{
+    background:var(--green-deep);
+    color:#fff;
+    border-color:var(--green-deep);
+  }
+  .tab .count{
+    display:inline-block;
+    margin-left:6px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    opacity:.8;
+  }
+
+  /* ---------- Card / Form ---------- */
+  .panel{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    padding:18px 16px 20px;
+    margin-bottom:16px;
+  }
+  .panel h2{
+    font-family:'Fraunces', serif;
+    font-size:18px;
+    margin:0 0 14px;
+    color:var(--green-deep);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.03em;
+    color:var(--green-mid);
+    margin-bottom:6px;
+    text-transform:uppercase;
+  }
+  .field .hint{
+    font-weight:400;
+    text-transform:none;
+    color:#8A9186;
+    font-size:11px;
+    letter-spacing:0;
+  }
+  input[type=text], input[type=date], textarea, select{
+    width:100%;
+    font-family:inherit;
+    font-size:15.5px;
+    padding:12px 12px;
+    border:1.5px solid var(--line);
+    border-radius:9px;
+    background:#FBFBF7;
+    color:var(--ink);
+  }
+  input:focus, textarea:focus, select:focus{
+    outline:none;
+    border-color:var(--green-mid);
+    background:#fff;
+  }
+  textarea{resize:vertical;min-height:56px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    padding:8px 13px;
+    border-radius:20px;
+    border:1.5px solid var(--line);
+    background:#FBFBF7;
+    font-size:13px;
+    cursor:pointer;
+    user-select:none;
+    color:var(--ink);
+  }
+  .chip.selected{
+    background:var(--green-deep);
+    border-color:var(--green-deep);
+    color:#fff;
+  }
+
+  .btn-row{display:flex;gap:10px;margin-top:6px;}
+  button{
+    font-family:inherit;
+    font-weight:600;
+    font-size:15px;
+    border-radius:10px;
+    border:none;
+    padding:13px 16px;
+    cursor:pointer;
+  }
+  .btn-primary{background:var(--green-deep);color:#fff;flex:1;}
+  .btn-primary:active{background:var(--green-mid);}
+  .btn-ghost{background:transparent;color:var(--clay);border:1.5px solid var(--line);}
+  .btn-danger{background:transparent;color:var(--danger);border:1.5px solid #E8CFCB;}
+
+  /* ---------- List ---------- */
+  .search{margin-bottom:14px;}
+  .search input{padding:12px 14px;}
+  .empty{
+    text-align:center;
+    padding:40px 20px;
+    color:#8A9186;
+    font-size:14px;
+  }
+  .empty .big{font-family:'Fraunces',serif;font-size:22px;color:var(--green-mid);display:block;margin-bottom:6px;}
+
+  .client-card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-left:5px solid var(--gold);
+    border-radius:12px;
+    padding:14px 15px;
+    margin-bottom:10px;
+    box-shadow:var(--shadow);
+  }
+  .client-card.estado-Cliente-activo{border-left-color:var(--green-mid);}
+  .client-card.estado-En-negociación{border-left-color:var(--gold);}
+  .client-card.estado-Descartado{border-left-color:#B7BBAA;}
+  .client-card.estado-Cliente-inactivo{border-left-color:#B7BBAA;}
+  .client-card.estado-Prospecto{border-left-color:var(--clay);}
+  .client-card.estado-Contactado{border-left-color:var(--clay);}
+
+  .cc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .cc-name{font-family:'Fraunces',serif;font-weight:600;font-size:17px;color:var(--green-deep);}
+  .cc-zona{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8A9186;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+  .cc-estado{
+    font-size:11px;
+    font-weight:600;
+    padding:4px 9px;
+    border-radius:20px;
+    background:var(--line-soft);
+    color:var(--green-mid);
+    white-space:nowrap;
+  }
+  .cc-meta{font-size:13px;color:#5B6357;margin-top:8px;line-height:1.5;}
+  .cc-meta b{color:var(--ink);font-weight:600;}
+  .cc-actions{display:flex;gap:8px;margin-top:12px;}
+  .cc-actions button{padding:8px 12px;font-size:13px;}
+
+  /* ---------- Floating add button ---------- */
+  .fab{
+    position:fixed;
+    right:20px;
+    bottom:22px;
+    width:58px;height:58px;
+    border-radius:50%;
+    background:var(--gold);
+    color:#fff;
+    font-size:28px;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 6px 18px rgba(192,138,46,0.45);
+    cursor:pointer;
+    border:none;
+    z-index:20;
+  }
+
+  .export-bar{
+    display:flex;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .export-bar button{flex:1;font-size:13.5px;padding:11px;}
+
+  .toast{
+    position:fixed;
+    bottom:24px;left:50%;
+    transform:translateX(-50%);
+    background:var(--green-deep);
+    color:#fff;
+    padding:11px 20px;
+    border-radius:30px;
+    font-size:13.5px;
+    box-shadow:var(--shadow);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    z-index:40;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-6px);}
+
+  .note{
+    font-size:11.5px;
+    color:#8A9186;
+    text-align:center;
+    margin:6px 0 18px;
+    line-height:1.5;
+  }
+
+  @media (max-width:420px){
+    .row2{grid-template-columns:1fr;}
+    header h1{font-size:24px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <h1>CRM MAVEC</h1>
+    <p class="sub">Ficha de cliente para exportar a Excel</p>
+    <div class="comercial-bar">
+      <label for="comercialActivo">Soy</label>
+      <select id="comercialActivo"></select>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tabs">
+    <div class="tab active" data-tab="nuevo" id="tabNuevo">+ Nueva ficha</div>
+    <div class="tab" data-tab="lista" id="tabLista">Mis clientes <span class="count" id="countBadge">(0)</span></div>
+  </div>
+
+  <!-- ===================== FORM PANEL ===================== -->
+  <div class="panel" id="panelForm">
+    <h2 id="formTitle">Nueva ficha de cliente</h2>
+
+    <div class="field">
+      <label>Nombre del cliente</label>
+      <select id="f_nombre"></select>
+      <input type="text" id="f_nombre_nuevo" placeholder="Escribe el nombre del nuevo cliente" style="display:none;margin-top:8px;">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Zona</label>
+        <select id="f_zona"></select>
+      </div>
+      <div class="field">
+        <label>Estado</label>
+        <select id="f_estado"></select>
+      </div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Tipo de cultivo</label>
+        <select id="f_cultivo"></select>
+      </div>
+      <div class="field">
+        <label>Campaña concreta actual</label>
+        <select id="f_campana"></select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Productos potenciales por cultivo</label>
+      <textarea id="f_productos" placeholder="Ej. Bioestimulante cuajado + Corrector Fe-Zn"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Campañas anuales según cultivo <span class="hint">(toca las que apliquen)</span></label>
+      <div class="chips" id="f_campanasAnuales"></div>
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Fecha alta / última visita</label>
+        <input type="date" id="f_fechaVisita">
+      </div>
+      <div class="field">
+        <label>Fecha próxima acción</label>
+        <input type="date" id="f_fechaProxima">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Próxima acción</label>
+      <input type="text" id="f_proximaAccion" placeholder="Ej. Enviar oferta cerrada">
+    </div>
+
+    <div class="field">
+      <label>Observaciones</label>
+      <textarea id="f_observaciones" placeholder="Notas de la visita, sensibilidad a precio, competencia..."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-ghost" id="btnCancelar" style="display:none;">Cancelar</button>
+      <button class="btn-primary" id="btnGuardar">Guardar ficha</button>
+    </div>
+  </div>
+
+  <!-- ===================== LIST PANEL ===================== -->
+  <div id="panelLista" style="display:none;">
+    <div class="export-bar">
+      <button class="btn-primary" id="btnExportExcel">⬇ Descargar Excel</button>
+      <button class="btn-ghost" id="btnExport">CSV</button>
+      <button class="btn-ghost" id="btnRefresh">↻</button>
+    </div>
+    <div class="search">
+      <input type="text" id="buscador" placeholder="Buscar por nombre, zona o cultivo...">
+    </div>
+    <div id="listaClientes"></div>
+    <p class="note">El CSV exportado tiene las mismas columnas que la hoja <b>Ficha_Clientes</b> del Excel: pégalo directamente ahí o en <b>Datos_Periodo</b> del Rapport Quincenal.</p>
+  </div>
+</div>
+
+<button class="fab" id="fabAdd" title="Nueva ficha">+</button>
+<div class="toast" id="toast"></div>
+
+<script>
+const ZONAS = ["Lleida","Tarragona","Girona","Aragón","Rioja","Valencia (Levante)","Murcia","Almería","Sevilla","Huelva","Extremadura"];
+const CULTIVOS = ["Cítricos","Hortalizas","Frutales de hueso","Viña","Olivar","Cereal","Frutos secos","Invernadero"];
+const ESTADOS = ["Prospecto","Contactado","En negociación","Cliente activo","Cliente inactivo","Descartado"];
+const CAMPANAS = ["Prefloración","Floración","Cuajado","Engorde de fruto","Envero/Maduración","Post-cosecha","Abonado de fondo","Caída de hojas"];
+const COMERCIALES = ["Xavi Marco","Jordi Clarisó","Santi Fernández"];
+const CLIENTES_BASE = ["Agrícola Martínez S.L.","Explotaciones El Olivar"];
+const NUEVO_CLIENTE_VALUE = "__nuevo__";
+
+const HEADERS = ["Zona","Comercial","Nombre Cliente","Tipo de Cultivo","Campaña Concreta (actual)",
+  "Productos Potenciales por Cultivo","Campañas Anuales según Cultivo","Estado","Fecha Alta / Última Visita",
+  "Próxima Acción","Fecha Próxima Acción","Observaciones"];
+
+let clientes = [];
+let editId = null;
+let selectedCampanas = new Set();
+
+function fillSelect(sel, opts, placeholder){
+  sel.innerHTML = "";
+  if(placeholder){
+    const o = document.createElement("option");
+    o.value=""; o.textContent = placeholder;
+    sel.appendChild(o);
+  }
+  opts.forEach(v=>{
+    const o = document.createElement("option");
+    o.value = v; o.textContent = v;
+    sel.appendChild(o);
+  });
+}
+
+function refreshClienteSelect(selected){
+  const sel = document.getElementById('f_nombre');
+  const nombresExistentes = clientes.map(c=>c.nombre).filter(Boolean);
+  const nombres = Array.from(new Set([...CLIENTES_BASE, ...nombresExistentes])).sort((a,b)=>a.localeCompare(b,'es'));
+  sel.innerHTML = "";
+  const optPlaceholder = document.createElement("option");
+  optPlaceholder.value = ""; optPlaceholder.textContent = "Selecciona cliente";
+  sel.appendChild(optPlaceholder);
+  nombres.forEach(n=>{
+    const o = document.createElement("option");
+    o.value = n; o.textContent = n;
+    sel.appendChild(o);
+  });
+  const optNuevo = document.createElement("option");
+  optNuevo.value = NUEVO_CLIENTE_VALUE; optNuevo.textContent = "+ Nuevo cliente…";
+  sel.appendChild(optNuevo);
+
+  const nuevoInput = document.getElementById('f_nombre_nuevo');
+  if(selected && nombres.includes(selected)){
+    sel.value = selected;
+    nuevoInput.style.display = 'none';
+  } else if(selected){
+    sel.value = NUEVO_CLIENTE_VALUE;
+    nuevoInput.style.display = 'block';
+    nuevoInput.value = selected;
+  } else {
+    sel.value = "";
+    nuevoInput.style.display = 'none';
+    nuevoInput.value = "";
+  }
+}
+
+document.getElementById('f_nombre').addEventListener('change', (e)=>{
+  const nuevoInput = document.getElementById('f_nombre_nuevo');
+  if(e.target.value === NUEVO_CLIENTE_VALUE){
+    nuevoInput.style.display = 'block';
+    nuevoInput.focus();
+  } else {
+    nuevoInput.style.display = 'none';
+    nuevoInput.value = "";
+  }
+});
+
+function init(){
+  fillSelect(document.getElementById('comercialActivo'), COMERCIALES, null);
+  refreshClienteSelect();
+  fillSelect(document.getElementById('f_zona'), ZONAS, "Selecciona zona");
+  fillSelect(document.getElementById('f_estado'), ESTADOS, "Selecciona estado");
+  fillSelect(document.getElementById('f_cultivo'), CULTIVOS, "Selecciona cultivo");
+  fillSelect(document.getElementById('f_campana'), CAMPANAS, "Selecciona campaña");
+
+  const chipsWrap = document.getElementById('f_campanasAnuales');
+  chipsWrap.innerHTML = "";
+  CAMPANAS.forEach(c=>{
+    const el = document.createElement('div');
+    el.className = 'chip';
+    el.textContent = c;
+    el.onclick = ()=>{
+      if(selectedCampanas.has(c)){ selectedCampanas.delete(c); el.classList.remove('selected'); }
+      else { selectedCampanas.add(c); el.classList.add('selected'); }
+    };
+    chipsWrap.appendChild(el);
+  });
+
+  document.getElementById('f_fechaVisita').valueAsDate = new Date();
+
+  loadClientes();
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+const STORAGE_KEY = 'crm_mavec_clientes';
+
+async function loadClientes(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    clientes = raw ? JSON.parse(raw) : [];
+  }catch(e){
+    clientes = [];
+  }
+  refreshClienteSelect(document.getElementById('f_nombre').value === NUEVO_CLIENTE_VALUE ? document.getElementById('f_nombre_nuevo').value : document.getElementById('f_nombre').value);
+  renderLista();
+}
+
+async function saveClientes(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(clientes));
+  }catch(e){
+    showToast('No se pudo guardar en este dispositivo (memoria llena o navegador privado).');
+  }
+}
+
+function resetForm(){
+  ['f_productos','f_proximaAccion','f_observaciones'].forEach(id=>document.getElementById(id).value='');
+  refreshClienteSelect();
+  document.getElementById('f_zona').value = '';
+  document.getElementById('f_estado').value = '';
+  document.getElementById('f_cultivo').value = '';
+  document.getElementById('f_campana').value = '';
+  document.getElementById('f_fechaVisita').valueAsDate = new Date();
+  document.getElementById('f_fechaProxima').value = '';
+  selectedCampanas.clear();
+  document.querySelectorAll('#f_campanasAnuales .chip').forEach(c=>c.classList.remove('selected'));
+  editId = null;
+  document.getElementById('formTitle').textContent = 'Nueva ficha de cliente';
+  document.getElementById('btnCancelar').style.display = 'none';
+}
+
+function switchTab(tab){
+  document.getElementById('tabNuevo').classList.toggle('active', tab==='nuevo');
+  document.getElementById('tabLista').classList.toggle('active', tab==='lista');
+  document.getElementById('panelForm').style.display = tab==='nuevo' ? 'block' : 'none';
+  document.getElementById('panelLista').style.display = tab==='lista' ? 'block' : 'none';
+  if(tab==='lista') renderLista();
+}
+
+document.getElementById('tabNuevo').onclick = ()=>switchTab('nuevo');
+document.getElementById('tabLista').onclick = ()=>switchTab('lista');
+document.getElementById('fabAdd').onclick = ()=>{ resetForm(); switchTab('nuevo'); };
+document.getElementById('btnCancelar').onclick = ()=>{ resetForm(); };
+
+document.getElementById('btnGuardar').onclick = async ()=>{
+  const selNombre = document.getElementById('f_nombre').value;
+  const nombre = (selNombre === NUEVO_CLIENTE_VALUE
+    ? document.getElementById('f_nombre_nuevo').value
+    : selNombre).trim();
+  const zona = document.getElementById('f_zona').value;
+  if(!nombre || !zona){
+    showToast('Falta el nombre o la zona del cliente');
+    return;
+  }
+  const record = {
+    id: editId || (Date.now().toString(36)+Math.random().toString(36).slice(2,7)),
+    zona: zona,
+    comercial: document.getElementById('comercialActivo').value,
+    nombre: nombre,
+    cultivo: document.getElementById('f_cultivo').value,
+    campana: document.getElementById('f_campana').value,
+    productos: document.getElementById('f_productos').value.trim(),
+    campanasAnuales: Array.from(selectedCampanas).join('; '),
+    estado: document.getElementById('f_estado').value || 'Prospecto',
+    fechaVisita: document.getElementById('f_fechaVisita').value,
+    proximaAccion: document.getElementById('f_proximaAccion').value.trim(),
+    fechaProxima: document.getElementById('f_fechaProxima').value,
+    observaciones: document.getElementById('f_observaciones').value.trim(),
+  };
+
+  if(editId){
+    const idx = clientes.findIndex(c=>c.id===editId);
+    if(idx>-1) clientes[idx] = record;
+  } else {
+    clientes.unshift(record);
+  }
+  await saveClientes();
+  showToast(editId ? 'Ficha actualizada' : 'Cliente guardado');
+  resetForm();
+  switchTab('lista');
+};
+
+function fmtDate(iso){
+  if(!iso) return '—';
+  const [y,m,d] = iso.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function renderLista(){
+  const q = (document.getElementById('buscador')?.value || '').toLowerCase();
+  const wrap = document.getElementById('listaClientes');
+  document.getElementById('countBadge').textContent = `(${clientes.length})`;
+
+  const filtered = clientes.filter(c=>{
+    if(!q) return true;
+    return (c.nombre+c.zona+c.cultivo+c.estado).toLowerCase().includes(q);
+  });
+
+  if(filtered.length===0){
+    wrap.innerHTML = `<div class="empty"><span class="big">Sin fichas todavía</span>Toca "+ Nueva ficha" para registrar tu primer cliente.</div>`;
+    return;
+  }
+
+  wrap.innerHTML = filtered.map(c=>{
+    const estadoClass = 'estado-' + c.estado.replace(/\s+/g,'-');
+    return `
+    <div class="client-card ${estadoClass}">
+      <div class="cc-top">
+        <div>
+          <div class="cc-name">${escapeHtml(c.nombre)}</div>
+          <div class="cc-zona">${escapeHtml(c.zona)} · ${escapeHtml(c.cultivo||'—')}</div>
+        </div>
+        <div class="cc-estado">${escapeHtml(c.estado)}</div>
+      </div>
+      <div class="cc-meta">
+        <b>Campaña actual:</b> ${escapeHtml(c.campana||'—')}<br>
+        <b>Próxima acción:</b> ${escapeHtml(c.proximaAccion||'—')} ${c.fechaProxima ? '('+fmtDate(c.fechaProxima)+')' : ''}<br>
+        <b>Última visita:</b> ${fmtDate(c.fechaVisita)}
+      </div>
+      <div class="cc-actions">
+        <button class="btn-ghost" onclick="editClient('${c.id}')">Editar</button>
+        <button class="btn-danger" onclick="deleteClient('${c.id}')">Eliminar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function escapeHtml(s){
+  return (s||'').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+window.editClient = function(id){
+  const c = clientes.find(x=>x.id===id);
+  if(!c) return;
+  editId = id;
+  refreshClienteSelect(c.nombre);
+  document.getElementById('f_zona').value = c.zona;
+  document.getElementById('f_estado').value = c.estado;
+  document.getElementById('f_cultivo').value = c.cultivo;
+  document.getElementById('f_campana').value = c.campana;
+  document.getElementById('f_productos').value = c.productos;
+  document.getElementById('f_fechaVisita').value = c.fechaVisita;
+  document.getElementById('f_fechaProxima').value = c.fechaProxima;
+  document.getElementById('f_proximaAccion').value = c.proximaAccion;
+  document.getElementById('f_observaciones').value = c.observaciones;
+  document.getElementById('comercialActivo').value = c.comercial;
+
+  selectedCampanas = new Set((c.campanasAnuales||'').split(';').map(s=>s.trim()).filter(Boolean));
+  document.querySelectorAll('#f_campanasAnuales .chip').forEach(chip=>{
+    chip.classList.toggle('selected', selectedCampanas.has(chip.textContent));
+  });
+
+  document.getElementById('formTitle').textContent = 'Editar ficha — ' + c.nombre;
+  document.getElementById('btnCancelar').style.display = 'inline-block';
+  switchTab('nuevo');
+};
+
+window.deleteClient = async function(id){
+  if(!confirm('¿Eliminar esta ficha de cliente?')) return;
+  clientes = clientes.filter(c=>c.id!==id);
+  await saveClientes();
+  showToast('Ficha eliminada');
+  renderLista();
+};
+
+document.getElementById('buscador').addEventListener('input', renderLista);
+document.getElementById('btnRefresh').onclick = loadClientes;
+
+document.getElementById('btnExport').onclick = ()=>{
+  if(clientes.length===0){ showToast('No hay fichas para exportar'); return; }
+  const rows = [HEADERS];
+  clientes.forEach(c=>{
+    rows.push([
+      c.zona, c.comercial, c.nombre, c.cultivo, c.campana,
+      c.productos, c.campanasAnuales, c.estado, fmtDate(c.fechaVisita),
+      c.proximaAccion, fmtDate(c.fechaProxima), c.observaciones
+    ]);
+  });
+  const csv = rows.map(r => r.map(cell=>{
+    const v = (cell===undefined||cell===null) ? '' : String(cell);
+    return '"' + v.replace(/"/g,'""') + '"';
+  }).join(',')).join('\r\n');
+
+  const blob = new Blob(["\uFEFF"+csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const today = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `Ficha_Clientes_${today}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('CSV descargado');
+};
+
+document.getElementById('btnExportExcel').onclick = ()=>{
+  if(clientes.length===0){ showToast('No hay fichas para exportar'); return; }
+  if(typeof XLSX === 'undefined'){ showToast('No se pudo cargar el motor de Excel. Revisa tu conexión.'); return; }
+
+  const rows = [HEADERS];
+  clientes.forEach(c=>{
+    rows.push([
+      c.zona, c.comercial, c.nombre, c.cultivo, c.campana,
+      c.productos, c.campanasAnuales, c.estado, fmtDate(c.fechaVisita),
+      c.proximaAccion, fmtDate(c.fechaProxima), c.observaciones
+    ]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [
+    {wch:14},{wch:13},{wch:22},{wch:16},{wch:20},
+    {wch:28},{wch:26},{wch:16},{wch:16},{wch:20},{wch:16},{wch:30}
+  ];
+  ws['!autofilter'] = { ref: `A1:L${rows.length}` };
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Ficha_Clientes');
+
+  const today = new Date().toISOString().slice(0,10);
+  XLSX.writeFile(wb, `Ficha_Clientes_${today}.xlsx`);
+  showToast('Excel descargado');
+};
+
+init();
+</script>
+</body>
+</html>
